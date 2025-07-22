@@ -454,23 +454,19 @@
         </div>
         
         <!-- 主页 -->
-        <div id="home-page" class="page active">
-            <div class="ai-summary">
-                <h2><i class="fas fa-robot"></i> 健康分析</h2>
-                <div class="ai-summary-content">
-                    <p id="ai-summary-text">正在加载健康分析...</p>
-                </div>
-            </div>
-            
-            <div class="health-tips">
-                <h3><i class="fas fa-lightbulb"></i> 健康建议</h3>
-                <div id="health-tips-container">
-                    <div class="tip">
-                        <p>正在加载健康建议...</p>
-                    </div>
-                </div>
-            </div>
-        </div>
+<!-- 修改主页结构 -->
+<div id="home-page" class="page active">
+  <div class="ai-summary">
+    <h2><i class="fas fa-robot"></i> AI健康分析</h2>
+    <div class="ai-summary-content">
+      <!-- 修改为显示单条AI分析 -->
+      <p id="ai-analysis-text">正在生成健康分析...</p>
+    </div>
+  </div>
+  
+  <!-- 移除原有的健康建议部分 -->
+</div>
+
         
         <!-- 计时器页面 -->
         <div id="timer-page" class="page">
@@ -612,7 +608,7 @@
 
     <script>
         // 设置后端API基本URL
-        const API_BASE_URL = 'http://192.168.5.37:3000/api'; // 根据实际部署调整
+        const API_BASE_URL = 'http://172.31.70.75:3000/api'; // 根据实际部署调整
         
         // 页面导航
         document.querySelectorAll('.nav-item').forEach(item => {
@@ -891,42 +887,34 @@
         }
         
         // 加载健康分析 (Node.js)
-        function loadHealthAnalysis() {
-            showLoader(true);
-            
-            fetch(`${API_BASE_URL}/health/analysis`)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('网络响应异常');
-                }
-                return response.json();
-            })
-            .then(data => {
-                showLoader(false);
-                if (data.success) {
-                    document.getElementById('ai-summary-text').innerHTML = data.summary;
-                    
-                    const tipsContainer = document.getElementById('health-tips-container');
-                    tipsContainer.innerHTML = '';
-                    
-                    data.tips.forEach(tip => {
-                        const tipEl = document.createElement('div');
-                        tipEl.className = 'tip';
-                        tipEl.innerHTML = `<p><strong>${tip.title}：</strong> ${tip.content}</p>`;
-                        tipsContainer.appendChild(tipEl);
-                    });
-                } else {
-                    document.getElementById('ai-summary-text').innerHTML = '无法加载健康分析';
-                    showToast('加载健康分析失败: ' + (data.message || '未知错误'), 'error');
-                }
-            })
-            .catch(error => {
-                showLoader(false);
-                console.error('Error:', error);
-                document.getElementById('ai-summary-text').innerHTML = '无法加载健康分析';
-                showToast('加载健康分析失败', 'error');
-            });
-        }
+
+function loadHealthAnalysis() {
+  showLoader(true);
+  
+  fetch(`${API_BASE_URL}/health/analysis`)
+  .then(response => {
+    if (!response.ok) {
+      throw new Error('网络响应异常');
+    }
+    return response.json();
+  })
+  .then(data => {
+    showLoader(false);
+    if (data.success) {
+      // 直接显示AI生成的分析
+      document.getElementById('ai-analysis-text').textContent = data.analysis;
+    } else {
+      document.getElementById('ai-analysis-text').textContent = '无法加载健康分析';
+      showToast('加载健康分析失败: ' + (data.message || '未知错误'), 'error');
+    }
+  })
+  .catch(error => {
+    showLoader(false);
+    console.error('Error:', error);
+    document.getElementById('ai-analysis-text').textContent = '无法加载健康分析';
+    showToast('加载健康分析失败', 'error');
+  });
+}
         
         // 加载如厕图表 (Node.js)
         function loadToiletChart() {
